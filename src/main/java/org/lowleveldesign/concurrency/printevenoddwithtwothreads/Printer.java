@@ -30,7 +30,7 @@ public class Printer implements Runnable {
         while (this.currentPrinterType != state.getNextToPrint()) {
           state.wait();
         }
-        System.out.println(currentPrinterType.toString() + ": " + currentValue);
+        System.out.println(currentPrinterType.toString() + ":: " + currentValue);
         currentValue += step;
         state.setNextToPrint(this.nextPrinterType);
         state.notifyAll();
