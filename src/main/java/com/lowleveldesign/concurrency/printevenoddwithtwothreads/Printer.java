@@ -1,4 +1,4 @@
-package org.lowleveldesign.concurrency.printevenoddwithtwothreads;
+package com.lowleveldesign.concurrency.printevenoddwithtwothreads;
 
 import lombok.NonNull;
 import lombok.SneakyThrows;
