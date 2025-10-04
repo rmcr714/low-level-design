@@ -10,10 +10,10 @@ public class BlockingQueue<E> {
     private final int capacity;
 
     private final ReentrantLock putLock = new ReentrantLock();
-    private final Condition notFull = putLock.newCondition();
+    private final Condition isFull = putLock.newCondition();
 
     private final ReentrantLock takeLock = new ReentrantLock();
-    private final Condition notEmpty = takeLock.newCondition();
+    private final Condition isEmpty = takeLock.newCondition();
 
     public BlockingQueue(int capacity) {
         this.capacity = capacity;
@@ -25,7 +25,7 @@ public class BlockingQueue<E> {
             // Use inline check to avoid double locking inside size()
             while (isFull()) {
                 System.out.println(Thread.currentThread().getName() + " waiting: Queue FULL");
-                notFull.await();
+                isFull.await();
             }
             queue.add(item);
             System.out.println(Thread.currentThread().getName() + " produced: " + item);
@@ -36,7 +36,7 @@ public class BlockingQueue<E> {
         // Signal consumer that queue is not empty
         takeLock.lock();
         try {
-            notEmpty.signal();
+            isEmpty.signal();
         } finally {
             takeLock.unlock();
         }
@@ -49,7 +49,7 @@ public class BlockingQueue<E> {
         try {
             while (isEmpty()) {
                 System.out.println(Thread.currentThread().getName() + " waiting: Queue EMPTY");
-                notEmpty.await();
+                isEmpty.await();
             }
             item = queue.remove();
             System.out.println(Thread.currentThread().getName() + " consumed: " + item);
@@ -60,7 +60,7 @@ public class BlockingQueue<E> {
         // Signal producer that queue is not full
         putLock.lock();
         try {
-            notFull.signal();
+            isFull.signal();
         } finally {
             putLock.unlock();
         }
@@ -69,30 +69,14 @@ public class BlockingQueue<E> {
     }
 
     // Public helper methods for external callers
-    public int size() {
-        putLock.lock();
-        try {
-            return queue.size();
-        } finally {
-            putLock.unlock();
-        }
-    }
+
 
     public boolean isFull() {
-        putLock.lock();
-        try {
             return queue.size() == capacity;
-        } finally {
-            putLock.unlock();
-        }
     }
 
     public boolean isEmpty() {
-        takeLock.lock();
-        try {
             return queue.isEmpty();
-        } finally {
-            takeLock.unlock();
-        }
+
     }
 }
